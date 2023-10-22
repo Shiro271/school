@@ -1,0 +1,2 @@
+letter = input("Buchstabe: ")
+
