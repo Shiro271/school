@@ -10,14 +10,14 @@ class Rotors():
         self.r4 = {'a': 'h', 'b': 'q', 'c': 'd', 'd': 'x', 'e': 'p', 'f': 'r', 'g': 'i', 'h': 'j', 'i': 'c', 'j': 'l', 'k': 'f', 'l': 'm', 'm': 'b', 'n': 'u', 'o': 's', 'p': 'o', 'q': 'a', 'r': 'k', 's': 'v', 't': 't', 'u': 'n', 'v': 'w', 'w': 'z', 'x': 'y', 'y': 'e', 'z': 'g'}
         self.r5 = {'a': 'q', 'b': 'm', 'c': 'c', 'd': 'o', 'e': 'i', 'f': 'w', 'g': 'e', 'h': 't', 'i': 'z', 'j': 'p', 'k': 'j', 'l': 'd', 'm': 'y', 'n': 'a', 'o': 'x', 'p': 'u', 'q': 's', 'r': 'l', 's': 'f', 't': 'h', 'u': 'k', 'v': 'g', 'w': 'v', 'x': 'b', 'y': 'r', 'z': 'n'}
         
-        self.reflector = {'a': 's', 'b': 'q', 'c': 't', 'd': 'l', 'e': 'm', 'f': 'p', 'g': 'h', 'h': 'x', 'i': 'u', 'j': 'i', 'k': 'b', 'l': 'f', 'm': 'n', 'n': 'd', 'o': 'e', 'p': 'z', 'q': 'k', 'r': 'g', 's': 'w', 't': 'r', 'u': 'o', 'v': 'a', 'w': 'y', 'x': 'v', 'y': 'j', 'z': 'c'}
+        self.reflector = {'a': 's', 'b': 'q', 'c': 't', 'd': 'l', 'e': 'm', 'f': 'p', 'g': 'h', 'h': 'g', 'i': 'u', 'j': 'w', 'k': 'v', 'l': 'd', 'm': 'e', 'n': 'z', 'o': 'r', 'p': 'f', 'q': 'b', 'r': 'o', 's': 'a', 't': 'c', 'u': 'i', 'v': 'k', 'w': 'j', 'x': 'y', 'y': 'x', 'z': 'n'}
 
         self.rotors = [self.r1, self.r2, self.r3, self.r4, self.r5]
 
         self.Walzenlage = Walzenlage
 
         for i in range(3):
-            self.rotate(self.rotors[i], Ringstellung[i])
+            self.rotate(self.rotors[self.Walzenlage[i]], Ringstellung[i])
 
 
         self.Alphabet = {
@@ -64,7 +64,7 @@ class Rotors():
         letter = self.reflector[letter]
         for i in range(len(self.Walzenlage) - 1, -1, -1):
             rotor = self.rotors[self.Walzenlage[i] - 1]
-            letter = rotor[letter]
+            letter = self.get_key(letter, rotor)
 
 
         self.rotate(self.rotors[self.Walzenlage[0]], 1) #rotate first rotor
@@ -86,3 +86,9 @@ class Rotors():
                     continue
                 rotor[prev], rotor[letter] = rotor[letter], rotor[prev]
                 prev = letter
+
+    def get_key(self, val, dict):
+   
+        for key, value in dict.items():
+            if val == value:
+                return key

@@ -29,8 +29,9 @@ class PlugBoard():
             "y" : "y",
             "z" : "z"
         }
-        for pair in pairs:
-            self.conect(pair[0], pair[1])
+        if len(pairs) != 0:
+            for pair in pairs:
+                self.conect(pair[0], pair[1])
 
     def conect(self, l1, l2):
         self.Alphabet[l1], self.Alphabet[l2] = self.Alphabet[l2], self.Alphabet[l1]

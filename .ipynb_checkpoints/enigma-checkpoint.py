@@ -7,9 +7,15 @@ class enigma():
         self.rotors = Rotor.Rotors(Walzenlage, Ringstellung)
         
 
-    def code(self, letter):
-        letter = self.plugBoard.code(letter)
-        letter = self.rotors.code(letter)
-        letter = self.plugBoard.code(letter)
-        
-        return letter
+    def code(self, sentence):
+        coded = ""
+        for letter in sentence:
+            print(letter)
+            if letter == " ":
+                coded += " "
+                continue
+            letter = self.plugBoard.code(letter)
+            letter = self.rotors.code(letter)
+            letter = self.plugBoard.code(letter)
+            coded += letter
+        return coded
