@@ -19,5 +19,3 @@ class enigma():
             coded += letter
         return coded
     
-e = enigma([], [1, 2, 3], [0, 0, 0])
-print(e.code("stzciu vjcgpev"))

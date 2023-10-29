@@ -10,7 +10,6 @@ class enigma():
     def code(self, sentence):
         coded = ""
         for letter in sentence:
-            print(letter)
             if letter == " ":
                 coded += " "
                 continue
@@ -19,3 +18,4 @@ class enigma():
             letter = self.plugBoard.code(letter)
             coded += letter
         return coded
+    

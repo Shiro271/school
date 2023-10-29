@@ -1,4 +1,5 @@
 from PIL import Image
+import binascii
 
 letterToBinary = {
     " " : "00000",
@@ -52,36 +53,39 @@ hexToBinary = {
 class ImageEncrypter():
     def __init__(self, image, sentence):
         self.hex = None
-        self.image = image
+        self.image = self.openImage(image)
         self.sentence = sentence
         self.sentenceBinSeq = self.sentenceToBinary()
         self.imageBinSeq = self.imageToBinary()
         self.newImageHexSeq = self.binToHex()
+
+    
+    def openImage(self, image):
         
+        with open("uploaded_image.png", "wb") as f:
+            f.write(image.value)
+        img = Image.open("uploaded_image.png")
+        return img
+
     
     def imageToBinary(self):
         global hexToBinary
         
         binSeq = ""
-        with open("uploaded_image.png", "wb") as f:
-            f.write(self.image.value)
 
-        image = Image.open("uploaded_image.png")
-
-        self.hex = image.tobytes().hex()
-
+        self.hex = self.image.tobytes().hex()
+        
         if len(self.hex) < len(self.sentenceBinSeq) * 6:
             print("please upload an image with more pixels")
             return
 
         
         for i in range(1, len(self.sentenceBinSeq) * 6 + 1):
-            binSeq += hexToBinary[self.hex[i]]
+            binSeq += hexToBinary[self.hex[i - 1]]
             if i % 6 == 0:
                 binSeq = binSeq[:-1]                             #delete last Bit and replace it with the Bin of the letter
                 binSeq += self.sentenceBinSeq[(i // 6) - 1]
-        print(self.hex[0:60])
-        print(binSeq)
+
         return binSeq
 
     def binToHex(self):
@@ -93,9 +97,13 @@ class ImageEncrypter():
             hexSeq += self.get_key(bin, hexToBinary)
 
         hexImage = hexSeq + self.hex[len(hexSeq):]
-        print(len(hexSeq))
-        print(hexSeq)
-        print(hexImage[:62])
+
+        binary_data = binascii.unhexlify(hexImage)
+        width, height = self.image.size
+        
+        img = Image.frombytes('RGB', (width, height), binary_data)
+        img.save("output.png", "PNG")
+        
         return hexImage
     
     def sentenceToBinary(self):
