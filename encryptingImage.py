@@ -83,7 +83,7 @@ class ImageEncrypter():
         for i in range(1, len(self.sentenceBinSeq) * 6 + 1):
             binSeq += hexToBinary[self.hex[i - 1]]
             if i % 6 == 0:
-                binSeq = binSeq[:-1]                             #delete last Bit and replace it with the Bin of the letter
+                binSeq = binSeq[:-1]                             #delete last Bit and replace it with the Bit of the letter
                 binSeq += self.sentenceBinSeq[(i // 6) - 1]
 
         return binSeq
@@ -111,6 +111,7 @@ class ImageEncrypter():
         sentence = self.sentence
         for letter in sentence:
             binSeq += self.letterToBin(letter)
+        binSeq += "11111" # stopping bits
         return binSeq
 
 
