@@ -50,82 +50,70 @@ hexToBinary = {
     "f" : "1111",
 }
 
-class ImageEncrypter():
+class ImageEncrypter:
+    BIT_CHUNK_SIZE = 6  # Each character will replace the last bit of each 6-bit chunk
+
     def __init__(self, image, sentence):
         self.hex = None
-        self.image = self.openImage(image)
+        self.image = self.open_image(image)
         self.sentence = sentence
-        self.sentenceBinSeq = self.sentenceToBinary()
-        self.imageBinSeq = self.imageToBinary()
-        self.newImageHexSeq = self.binToHex()
+        self.sentence_bin_seq = self.sentence_to_binary()
+        self.image_bin_seq = self.image_to_binary()
+        self.new_image_hex_seq = self.bin_to_hex()
 
-    
-    def openImage(self, image):
-        
+    def open_image(self, image):
         with open("uploaded_image.png", "wb") as f:
             f.write(image.value)
         img = Image.open("uploaded_image.png")
         return img
 
-    
-    def imageToBinary(self):
-        global hexToBinary
-        
-        binSeq = ""
+    def image_to_binary(self):
+        bin_seq = ""
 
         self.hex = self.image.tobytes().hex()
         
-        if len(self.hex) < len(self.sentenceBinSeq) * 6:
-            print("please upload an image with more pixels")
-            return
+        required_length = len(self.sentence_bin_seq) * self.BIT_CHUNK_SIZE
+        if len(self.hex) < required_length:
+            raise ValueError("Please upload an image with more pixels")
 
-        
-        for i in range(1, len(self.sentenceBinSeq) * 6 + 1):
-            binSeq += hexToBinary[self.hex[i - 1]]
-            if i % 6 == 0:
-                binSeq = binSeq[:-1]                             #delete last Bit and replace it with the Bit of the letter
-                binSeq += self.sentenceBinSeq[(i // 6) - 1]
+        for i in range(0, required_length, self.BIT_CHUNK_SIZE):
+            chunk = ''.join(hexToBinary[self.hex[j]] for j in range(i, i + self.BIT_CHUNK_SIZE))
+            bin_seq += chunk[:-1] + self.sentence_bin_seq[i // self.BIT_CHUNK_SIZE]
 
-        return binSeq
+        return bin_seq
 
-    def binToHex(self):
-        global hexToBinary
-        
-        hexSeq = ""
-        for i in range(4, len(self.imageBinSeq) + 4, 4):
-            bin = self.imageBinSeq[i - 4: i]
-            hexSeq += self.get_key(bin, hexToBinary)
+    def bin_to_hex(self):
+        hex_seq = ""
+        for i in range(0, len(self.image_bin_seq), 4):
+            bin_chunk = self.image_bin_seq[i:i + 4]
+            hex_seq += self.get_key(bin_chunk, hexToBinary)
 
-        hexImage = hexSeq + self.hex[len(hexSeq):]
-
-        binary_data = binascii.unhexlify(hexImage)
+        hex_image = hex_seq + self.hex[len(hex_seq):]
+        binary_data = binascii.unhexlify(hex_image)
         width, height = self.image.size
         
-        img = Image.frombytes('RGB', (width, height), binary_data)
+        img = Image.frombytes(self.image.mode, (width, height), binary_data)
         img.save("output.png", "PNG")
         
-        return hexImage
-    
-    def sentenceToBinary(self):
-        binSeq = ""
-        sentence = self.sentence
-        for letter in sentence:
-            binSeq += self.letterToBin(letter)
-        binSeq += "11111" # stopping bits
-        return binSeq
+        return hex_image
 
+    def sentence_to_binary(self):
+        bin_seq = "".join(self.letter_to_bin(letter) for letter in self.sentence)
+        bin_seq += "11111"  # stopping bits
+        return bin_seq
 
-    def letterToBin(self, letter):
-        global letterToBinary
-        return letterToBinary[letter]
+    @staticmethod
+    def letter_to_bin(letter):
+        return letterToBinary.get(letter, "00000")  # Default to space if character not found
 
-    def binToLetter(self, bin):
-        global letterToBinary
-        return self.get_key(bin, letterToBinary)
-
-
-    def get_key(self, val, dict):
+    @staticmethod
+    def get_key(val, dict):
         for key, value in dict.items():
             if val == value:
                 return key
+        raise ValueError(f"Value {val} not found in dictionary")
 
+# Example usage:
+# image = open('path_to_image', 'rb')
+# sentence = "hello"
+# encrypter = ImageEncrypter(image, sentence)
